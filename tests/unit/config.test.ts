@@ -23,6 +23,7 @@ describe('parseConfig', () => {
       SERVICE_ROLES: ['api', 'consumer', 'worker'],
       HTTP_HOST: '0.0.0.0',
       HTTP_PORT: 3000,
+      SHUTDOWN_TIMEOUT_MS: 8000,
       LOG_LEVEL: 'info',
     });
   });

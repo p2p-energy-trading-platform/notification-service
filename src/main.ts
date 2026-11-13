@@ -13,7 +13,10 @@ async function main(): Promise<void> {
     });
 
     app.log.info(
-      { http: `${app.config.HTTP_HOST}:${app.config.HTTP_PORT}` },
+      {
+        http: `${app.config.HTTP_HOST}:${app.config.HTTP_PORT}`,
+        roles: app.config.SERVICE_ROLES,
+      },
       'Notification service started',
     );
   } catch (error) {

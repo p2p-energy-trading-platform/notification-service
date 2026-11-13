@@ -2,7 +2,7 @@ import type { FastifyBaseLogger } from 'fastify';
 
 import type { Component } from '../roles.js';
 
-// Placeholder: reads Kafka events and creates notifications 
+// Placeholder: reads Kafka events and creates notifications
 export function createKafkaConsumer(log: FastifyBaseLogger): Component {
   return {
     role: 'consumer',

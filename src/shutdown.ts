@@ -11,7 +11,6 @@ export interface ShutdownOptions {
   exit?: (code: number) => void;
 }
 
-
 export function createShutdown(options: ShutdownOptions) {
   const { app, timeoutMs, exit = (code: number) => process.exit(code) } = options;
 

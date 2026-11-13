@@ -25,6 +25,8 @@ export const envSchema = z.object({
   HTTP_HOST: z.string().default('0.0.0.0'),
   HTTP_PORT: z.coerce.number().int().positive().default(3000),
 
+  SHUTDOWN_TIMEOUT_MS: z.coerce.number().int().positive().default(8000),
+
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
 });
 

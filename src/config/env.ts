@@ -1,14 +1,20 @@
 import 'dotenv/config';
 
-import { envSchema } from './schema.js';
+import { ConfigError, parseConfig } from './parse.js';
 import type { AppConfig } from './types.js';
 
-const result = envSchema.safeParse(process.env);
+function loadConfig(): AppConfig {
+  try {
+    return parseConfig(process.env);
+  } catch (error) {
+    if (error instanceof ConfigError) {
+      // Logger is not created yet, so write straight to stderr and stop.
+      console.error(error.message);
+      process.exit(1);
+    }
 
-if (!result.success) {
-  console.error('Invalid environment configuration:');
-  console.error(result.error.format());
-  throw new Error('Invalid environment configuration');
+    throw error;
+  }
 }
 
-export const config: AppConfig = result.data;
+export const config: AppConfig = loadConfig();

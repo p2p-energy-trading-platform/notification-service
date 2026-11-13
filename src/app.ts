@@ -21,14 +21,33 @@ export function buildApp(options: BuildAppOptions) {
 
   app.decorate('config', config);
 
+  let closing = false;
+
+  app.addHook('preClose', async () => {
+    closing = true;
+  });
+
+  app.addHook('onSend', async (_request, reply) => {
+    if (closing) {
+      reply.header('connection', 'close');
+    }
+  });
+
   app.register(httpRoutes);
 
   const components = options.components ?? createRoleComponents(config.SERVICE_ROLES, app.log);
 
-  for (const component of components) {
-    app.addHook('onReady', () => component.start());
-    app.addHook('onClose', () => component.stop());
-  }
+  app.addHook('onReady', async () => {
+    for (const component of components) {
+      await component.start();
+    }
+  });
+
+  app.addHook('onClose', async () => {
+    for (const component of components) {
+      await component.stop();
+    }
+  });
 
   return app;
 }

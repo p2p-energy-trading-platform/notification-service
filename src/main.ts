@@ -1,5 +1,6 @@
 import { buildApp } from './app.js';
 import { config } from './config/env.js';
+import { createShutdown } from './shutdown.js';
 
 async function main(): Promise<void> {
   const app = buildApp({ config });
@@ -29,17 +30,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  const shutdown = async (signal: string): Promise<void> => {
-    app.log.info({ signal }, 'Shutdown signal received');
-
-    try {
-      await app.close();
-    } catch (error) {
-      app.log.error({ err: error }, 'Error during shutdown');
-
-      process.exitCode = 1;
-    }
-  };
+  const shutdown = createShutdown({ app, timeoutMs: app.config.SHUTDOWN_TIMEOUT_MS });
 
   process.once('SIGINT', () => void shutdown('SIGINT'));
 

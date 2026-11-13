@@ -20,6 +20,7 @@ describe('parseConfig', () => {
   it('uses defaults when optional variables are missing', () => {
     expect(parseConfig({})).toEqual({
       NODE_ENV: 'development',
+      SERVICE_ROLES: ['api', 'consumer', 'worker'],
       HTTP_HOST: '0.0.0.0',
       HTTP_PORT: 3000,
       LOG_LEVEL: 'info',

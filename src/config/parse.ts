@@ -11,7 +11,7 @@ export class ConfigError extends Error {
 }
 
 function describeIssue(issue: z.core.$ZodIssue): string {
-  const variable = issue.path.join('.') || '(environment)';
+  const variable = String(issue.path[0] ?? '(environment)');
 
   return `${variable}: ${issue.message}`;
 }

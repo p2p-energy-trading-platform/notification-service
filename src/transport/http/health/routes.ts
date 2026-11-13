@@ -5,7 +5,7 @@ import { readiness } from './readiness.js';
 
 const healthRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get('/health/live', async () => {
-    return liveness();
+    return liveness(fastify.config.SERVICE_ROLES);
   });
 
   fastify.get('/health/ready', async (_request, reply) => {

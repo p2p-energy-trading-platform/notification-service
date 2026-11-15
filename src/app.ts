@@ -47,7 +47,6 @@ export function buildApp(options: BuildAppOptions) {
 
   const components = options.components ?? createRoleComponents(config.SERVICE_ROLES, app.log);
 
-  
   app.register(
     fp(async (instance) => {
       instance.addHook('onReady', async () => {

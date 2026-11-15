@@ -9,7 +9,6 @@ async function passes(check: () => Promise<unknown>): Promise<boolean> {
   }
 }
 
-
 export async function readiness(fastify: FastifyInstance) {
   const checks: Record<string, boolean> = {};
 

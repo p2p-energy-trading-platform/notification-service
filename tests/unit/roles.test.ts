@@ -1,13 +1,19 @@
 import { describe, expect, it } from 'vitest';
 
 import { buildApp } from '../../src/app.js';
-import { envSchema } from '../../src/config/schema.js';
+import { testConfig } from '../fixtures/config.js';
 import { ConfigError, parseConfig } from '../../src/config/parse.js';
 import { type Component, createRoleComponents } from '../../src/roles.js';
 
+const requiredEnv = {
+  DATABASE_URL: 'postgres://test:test@localhost:5432/test',
+  REDIS_URL: 'redis://localhost:6379',
+};
+
 const silentLog = buildApp({
-  config: envSchema.parse({ LOG_LEVEL: 'fatal' }),
+  config: testConfig(),
   components: [],
+  registerInfrastructure: false,
 }).log;
 
 function rolesOf(components: Component[]) {
@@ -16,19 +22,18 @@ function rolesOf(components: Component[]) {
 
 describe('SERVICE_ROLES config', () => {
   it('defaults to all three roles', () => {
-    expect(parseConfig({}).SERVICE_ROLES).toEqual(['api', 'consumer', 'worker']);
+    expect(parseConfig({ ...requiredEnv }).SERVICE_ROLES).toEqual(['api', 'consumer', 'worker']);
   });
 
   it('parses a comma separated list with spaces and duplicates', () => {
-    expect(parseConfig({ SERVICE_ROLES: ' worker, api ,worker' }).SERVICE_ROLES).toEqual([
-      'worker',
-      'api',
-    ]);
+    expect(
+      parseConfig({ ...requiredEnv, SERVICE_ROLES: ' worker, api ,worker' }).SERVICE_ROLES,
+    ).toEqual(['worker', 'api']);
   });
 
   it.each([['scheduler'], [''], [' , ']])('rejects %j and names SERVICE_ROLES', (value) => {
-    expect(() => parseConfig({ SERVICE_ROLES: value })).toThrow(ConfigError);
-    expect(() => parseConfig({ SERVICE_ROLES: value })).toThrow(/SERVICE_ROLES: /);
+    expect(() => parseConfig({ ...requiredEnv, SERVICE_ROLES: value })).toThrow(ConfigError);
+    expect(() => parseConfig({ ...requiredEnv, SERVICE_ROLES: value })).toThrow(/SERVICE_ROLES: /);
   });
 });
 
@@ -60,8 +65,9 @@ describe('component lifecycle', () => {
     };
 
     const app = buildApp({
-      config: envSchema.parse({ LOG_LEVEL: 'fatal', SERVICE_ROLES: 'worker' }),
+      config: testConfig({ SERVICE_ROLES: 'worker' }),
       components: [fake],
+      registerInfrastructure: false,
     });
 
     await app.ready();

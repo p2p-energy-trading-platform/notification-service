@@ -143,7 +143,28 @@ Health check:
 curl localhost:3000/health/live
 ```
 
-## 7. Development checks before opening a PR
+## 7. Database migrations
+
+The service uses PostgreSQL (`notification_data` schema, `notification_service_user`) and Redis. Migrations are managed with [goose](https://github.com/pressly/goose) and live in `src/infrastructure/database/migrations/`.
+
+Install goose:
+
+```bash
+brew install goose
+```
+
+The `gridx-infra` containers must be running. Then:
+
+```bash
+npm run db:status                      # show applied and pending migrations
+npm run db:up                          # apply all pending migrations
+npm run db:down                        # roll back the latest migration
+npm run db:create -- add_some_column   # create a new SQL migration
+```
+
+Every migration must have a `-- +goose Down` section. Do not edit a migration that is already merged, create a new one instead.
+
+## 8. Development checks before opening a PR
 
 Run everything CI runs:
 
@@ -162,7 +183,7 @@ npm test
 npm run build
 ```
 
-## 8. Formatting and linting
+## 9. Formatting and linting
 
 Automatically fix lint findings:
 
@@ -182,7 +203,7 @@ Check formatting without changing files:
 npm run format:check
 ```
 
-## 9. Commit messages
+## 10. Commit messages
 
 Commit messages are checked by commitlint (Husky `commit-msg` hook). Use Conventional Commits:
 

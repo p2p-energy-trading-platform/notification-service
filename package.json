@@ -16,7 +16,12 @@
     "test:watch": "vitest",
     "check-config": "tsx scripts/check-config.ts",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build",
-    "prepare": "husky"
+    "prepare": "husky",
+    "db:create": "sh -c 'goose -dir src/infrastructure/database/migrations create \"$1\" sql' --",
+    "db:up": "dotenv -- sh -c 'goose -dir src/infrastructure/database/migrations postgres \"$DATABASE_URL\" up'",
+    "db:down": "dotenv -- sh -c 'goose -dir src/infrastructure/database/migrations postgres \"$DATABASE_URL\" down'",
+    "db:status": "dotenv -- sh -c 'goose -dir src/infrastructure/database/migrations postgres \"$DATABASE_URL\" status'",
+    "db:reset": "dotenv -- sh -c 'goose -dir src/infrastructure/database/migrations postgres \"$DATABASE_URL\" reset'"
   },
   "engines": {
     "node": ">=24"
@@ -37,6 +42,8 @@
     "dotenv": "^18.0.10",
     "fastify": "^5.12.8",
     "fastify-plugin": "^6.0.1",
+    "postgres": "^4.1.1",
+    "redis": "^6.3.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {

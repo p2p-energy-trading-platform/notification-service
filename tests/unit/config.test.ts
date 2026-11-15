@@ -2,9 +2,14 @@ import { describe, expect, it } from 'vitest';
 
 import { ConfigError, parseConfig } from '../../src/config/parse.js';
 
+const requiredEnv = {
+  DATABASE_URL: 'postgres://test:test@localhost:5432/test',
+  REDIS_URL: 'redis://localhost:6379',
+};
+
 function problemsFor(env: Record<string, string | undefined>): string[] {
   try {
-    parseConfig(env);
+    parseConfig({ ...requiredEnv, ...env });
   } catch (error) {
     if (error instanceof ConfigError) {
       return error.problems;
@@ -18,8 +23,10 @@ function problemsFor(env: Record<string, string | undefined>): string[] {
 
 describe('parseConfig', () => {
   it('uses defaults when optional variables are missing', () => {
-    expect(parseConfig({})).toEqual({
+    expect(parseConfig({ ...requiredEnv })).toEqual({
       NODE_ENV: 'development',
+      DATABASE_URL: 'postgres://test:test@localhost:5432/test',
+      REDIS_URL: 'redis://localhost:6379',
       SERVICE_ROLES: ['api', 'consumer', 'worker'],
       HTTP_HOST: '0.0.0.0',
       HTTP_PORT: 3000,
@@ -29,7 +36,7 @@ describe('parseConfig', () => {
   });
 
   it('converts HTTP_PORT from string to number', () => {
-    expect(parseConfig({ HTTP_PORT: '8080' }).HTTP_PORT).toBe(8080);
+    expect(parseConfig({ ...requiredEnv, HTTP_PORT: '8080' }).HTTP_PORT).toBe(8080);
   });
 
   it('names the variable when a value is invalid', () => {
@@ -50,6 +57,20 @@ describe('parseConfig', () => {
   });
 
   it('puts every problem in the error message', () => {
-    expect(() => parseConfig({ LOG_LEVEL: 'loud' })).toThrow(/LOG_LEVEL: /);
+    expect(() => parseConfig({ ...requiredEnv, LOG_LEVEL: 'loud' })).toThrow(/LOG_LEVEL: /);
+  });
+
+  it('requires DATABASE_URL and REDIS_URL', () => {
+    let problems: string[] = [];
+
+    try {
+      parseConfig({});
+    } catch (error) {
+      if (error instanceof ConfigError) {
+        problems = error.problems;
+      }
+    }
+
+    expect(problems.map((p) => p.split(':')[0]).toSorted()).toEqual(['DATABASE_URL', 'REDIS_URL']);
   });
 });

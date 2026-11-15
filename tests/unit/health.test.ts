@@ -1,12 +1,13 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { buildApp } from '../../src/app.js';
-import { envSchema } from '../../src/config/schema.js';
+import { testConfig } from '../fixtures/config.js';
 
 describe('health routes', () => {
   const app = buildApp({
-    config: envSchema.parse({ NODE_ENV: 'test', LOG_LEVEL: 'fatal' }),
+    config: testConfig(),
     components: [],
+    registerInfrastructure: false,
   });
 
   beforeAll(async () => {

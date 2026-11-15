@@ -1,10 +1,35 @@
 import type { FastifyInstance } from 'fastify';
 
-// PostgreSQL, Redis and Kafka checks are added when those clients exist.
-export async function readiness(_fastify: FastifyInstance) {
+async function passes(check: () => Promise<unknown>): Promise<boolean> {
+  try {
+    await check();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+
+export async function readiness(fastify: FastifyInstance) {
   const checks: Record<string, boolean> = {};
 
-  const ready = Object.values(checks).every(Boolean);
+  if (fastify.hasDecorator('db')) {
+    checks.database = await passes(() => fastify.db`SELECT 1`);
+  }
+
+  if (fastify.hasDecorator('redis')) {
+    checks.redis = await passes(() => fastify.redis.ping());
+  }
+
+  if (checks.database === false) {
+    fastify.log.error('Database readiness check failed');
+  }
+
+  if (checks.redis === false) {
+    fastify.log.warn('Redis readiness check failed');
+  }
+
+  const ready = checks.database !== false;
 
   return {
     status: ready ? 'ok' : 'not_ready',

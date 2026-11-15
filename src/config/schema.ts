@@ -22,6 +22,9 @@ export const envSchema = z.object({
 
   SERVICE_ROLES: serviceRolesFromEnv,
 
+  DATABASE_URL: z.url(),
+  REDIS_URL: z.url(),
+
   HTTP_HOST: z.string().default('0.0.0.0'),
   HTTP_PORT: z.coerce.number().int().positive().default(3000),
 

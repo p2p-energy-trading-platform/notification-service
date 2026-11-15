@@ -7,6 +7,16 @@ services:
     env_file:
       - .env
 
+    environment:
+      DATABASE_URL: ${DOCKER_POSTGRES_URL}
+      REDIS_URL: redis://redis:6379
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
     networks:
       - gridx-infra-network
 

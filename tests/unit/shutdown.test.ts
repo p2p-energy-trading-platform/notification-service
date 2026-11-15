@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { buildApp } from '../../src/app.js';
-import { envSchema } from '../../src/config/schema.js';
+import { testConfig } from '../fixtures/config.js';
 import type { Component } from '../../src/roles.js';
 import { createShutdown } from '../../src/shutdown.js';
 
-const log = buildApp({ config: envSchema.parse({ LOG_LEVEL: 'fatal' }), components: [] }).log;
+const log = buildApp({ config: testConfig(), components: [], registerInfrastructure: false }).log;
 
 function fakeApp(close: () => Promise<unknown>) {
   return { log, close: vi.fn<() => Promise<unknown>>(close) };
@@ -66,7 +66,7 @@ describe('createShutdown', () => {
 
 describe('graceful shutdown of the app', () => {
   it('finishes an in-flight request before closing, and rejects new ones', async () => {
-    const app = buildApp({ config: envSchema.parse({ LOG_LEVEL: 'fatal' }), components: [] });
+    const app = buildApp({ config: testConfig(), components: [], registerInfrastructure: false });
 
     let finishRequest!: () => void;
     app.get('/slow', async () => {
@@ -104,8 +104,9 @@ describe('graceful shutdown of the app', () => {
     });
 
     const app = buildApp({
-      config: envSchema.parse({ LOG_LEVEL: 'fatal' }),
+      config: testConfig(),
       components: [component('consumer'), component('worker')],
+      registerInfrastructure: false,
     });
 
     await app.ready();

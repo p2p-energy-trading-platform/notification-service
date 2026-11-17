@@ -1,4 +1,22 @@
 services:
+  notification-migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrate
+
+    environment:
+      DATABASE_URL: ${DOCKER_POSTGRES_URL}
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - gridx-infra-network
+
+    restart: "no"
+
   notification-service:
     build:
       context: .
@@ -12,6 +30,8 @@ services:
       REDIS_URL: redis://redis:6379
 
     depends_on:
+      notification-migrate:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
       redis:

@@ -8,6 +8,11 @@ export interface Component {
   readonly role: ServiceRole;
   start(): Promise<void>;
   stop(): Promise<void>;
+
+  readonly readiness?: {
+    readonly name: string;
+    check(): Promise<boolean>;
+  };
 }
 
 // Builds the background components for the enabled roles.

@@ -137,10 +137,12 @@ npm run build
 npm run start
 ```
 
-Health check:
+Health and metrics:
 
 ```bash
-curl localhost:3000/health/live
+curl localhost:3000/health/live    # process is running
+curl localhost:3000/health/ready   # PostgreSQL, migrations and Kafka 
+curl localhost:3000/metrics        # Prometheus metrics
 ```
 
 ## 7. Database migrations
@@ -153,7 +155,7 @@ Install goose:
 brew install goose
 ```
 
-The `gridx-infra` containers must be running. Then:
+With `task up`, migrations run automatically (the `notification-migrate` container) before the service starts. When running the service locally, the `gridx-infra` containers must be running. Then:
 
 ```bash
 npm run db:status                      # show applied and pending migrations

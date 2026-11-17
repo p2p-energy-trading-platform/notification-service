@@ -4,6 +4,7 @@ import fp from 'fastify-plugin';
 import type { AppConfig } from './config/types.js';
 import { createLoggerOptions } from './observability/logging.js';
 import databasePlugin from './plugins/database.js';
+import observabilityPlugin from './plugins/observability.js';
 import redisPlugin from './plugins/redis.js';
 import { type Component, createRoleComponents } from './roles.js';
 import httpRoutes from './transport/http/routes.js';
@@ -38,6 +39,8 @@ export function buildApp(options: BuildAppOptions) {
     }
   });
 
+  app.register(observabilityPlugin);
+
   if (registerInfrastructure) {
     app.register(databasePlugin);
     app.register(redisPlugin);
@@ -46,6 +49,8 @@ export function buildApp(options: BuildAppOptions) {
   app.register(httpRoutes);
 
   const components = options.components ?? createRoleComponents(config.SERVICE_ROLES, app.log);
+
+  app.decorate('components', components);
 
   app.register(
     fp(async (instance) => {
